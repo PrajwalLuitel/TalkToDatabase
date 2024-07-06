@@ -1,20 +1,59 @@
+import torch
+from typing import Literal
 from faster_whisper import WhisperModel
 
-model_size = "medium"
 
-# Run on GPU with FP16
-model = WhisperModel(model_size, device="cuda", compute_type="float32")
+class Singleton(type):
+    _instances = {}
+
+    def __call__(cls, *args, **kwargs):
+        if cls not in cls._instances:
+            cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
+        return cls._instances[cls]
 
 
-segments, info = model.transcribe(
-    "/home/rjn/Documents/GitHub/TalkToDatabase/data/test_samles/Best Podcast Intro Examples 2021.mp3",
-    beam_size=5,
-)
+class SpeechToText(metaclass=Singleton):
 
-print(
-    "Detected language '%s' with probability %f"
-    % (info.language, info.language_probability)
-)
+    def __init__(
+        self, whisper_model_size: Literal["medium", "small"], device: str = None
+    ) -> None:
 
-for segment in segments:
-    print("[%.2fs -> %.2fs] %s" % (segment.start, segment.end, segment.text))
+        self.model_type = whisper_model_size
+
+        if device:
+            self.device = device
+        else:
+            self.device = "cuda" if torch.cuda.is_available() else "cpu"
+
+        # load the model
+        self.load_model(self.model_type, self.device)
+
+    def load_model(self, model_size, device):
+
+        print(f"Loading the {model_size} model on {device}")
+
+        self.model = WhisperModel(model_size, device=device, compute_type="float32")
+
+    def __call__(self, audio_file_pth: str, beam_size: int = 5):
+
+        segments, info = self.model.transcribe(
+            audio_file_pth,
+            beam_size=beam_size,
+        )
+
+        result = {}
+
+        for segment in segments:
+            # get the key
+            key = f"{segment.start}-{segment.end}"
+
+            # key will be tine and audio will be file
+            result[key] = str(segment.text)
+
+            return result
+
+
+if __name__ == "__main__":
+    audio_pth = "/home/rjn/Documents/GitHub/TalkToDatabase/data/test_samles/Best Podcast Intro Examples 2021.mp3"
+    speech_to_text = SpeechToText(whisper_model_size="medium")
+    print(speech_to_text(audio_pth))
