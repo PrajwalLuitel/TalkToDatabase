@@ -1,4 +1,8 @@
 import re
+import os
+from pathlib import Path
+from pytube import YouTube
+from typing import Literal
 
 
 class YoutubeDownloder:
@@ -71,6 +75,6 @@ class YoutubeDownloder:
             return self.__download_youtube_audio(url)
 
 
-yt = YoutubeDownloder()
+yt = YoutubeDownloder(save_folder=".", file_type="audio")
 
-yt.download_youtube()
+yt.download_youtube(url="https://youtu.be/FOjQuHzpgAA?si=rBJq4BpjoxmDI0kr")
