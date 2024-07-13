@@ -1,11 +1,14 @@
 import re
 import sqlalchemy.exc
 from typing import Literal
+from typing import Iterable
 from langchain import SQLDatabase
 from sqlalchemy import create_engine
 
+from src.db_models import TableColumn, Table
 
-class SQLAgent:
+
+class DatabaseAgent:
 
     def __init__(
         self,
@@ -23,18 +26,8 @@ class SQLAgent:
         self.__db_name: str = database_name
         self.db_type: str = database_type
 
-        # check the connection
+        # check the connection to make sure database is there.
         self.__check_connection()
-
-    def __get_table_names_schema_re(self, engine):
-
-        regex = r"CREATE TABLE .*?\)\n"
-
-        schemas = re.findall(regex, engine, re.DOTALL)
-
-        tables = re.findall(r'CREATE TABLE "?(.*?)"? \(', engine)
-
-        return tables, schemas
 
     def __generate_conn_str(self):
         """
@@ -56,26 +49,6 @@ class SQLAgent:
 
             return conn_str
 
-    def exract_db_info(self):
-
-        # step 1 : get the connection string
-        connection_str = self.__generate_conn_str()
-
-        try:
-            # step 2 : Check connection to database
-            db_engine = SQLDatabase.from_uri(connection_str)
-
-            # Step 3: Grab the tables and other
-            tables, schema = self.__get_table_names_schema_re(
-                engine=db_engine.table_info
-            )
-
-            return tables, schema
-
-        except sqlalchemy.exc.OperationalError as e:
-
-            raise e
-
     def __check_connection(self):
 
         # get the connection string
@@ -90,3 +63,64 @@ class SQLAgent:
         except Exception as e:
 
             raise f"Error connecting to MySQL database: {e}"
+
+    def grab_table_names(self) -> Iterable:
+        """Grabs all the table names in the database.
+
+        Returns:
+            Iterable: The names of the tables.
+        """
+
+        # get the database url
+        url = self.__generate_conn_str()
+
+        # create the engine
+        engine = create_engine(url=url)
+
+        # Grab the table names from sql alchemy
+        table_names = engine.table_names()
+
+        # delete the table names after tables have been extracted
+        engine.dispose()
+
+        return table_names
+
+    def grab_table_schema(self, tables: Iterable) -> Iterable[Table]:
+
+        # store the schemas
+        schemas = []
+
+        # get the database url
+        url = self.__generate_conn_str()
+
+        # create the engine
+        engine = create_engine(url=url)
+
+        # iterate over the tables
+        for table in tables:
+            # store the columns data
+            columns = []
+
+            if self.db_type == "SQLite":
+                sql = f"PRAGMA table_info({table});"
+                # TODO : Work for SQLITE
+
+            else:
+                sql = f"""
+                    SELECT column_name, data_type
+                    FROM information_schema.columns
+                    WHERE table_name = '{table}';
+                """
+
+            # grab the schema from the sql query.
+            schema = engine.execute(sql).fetchall()
+
+            # iterate over the schemas
+            for column_name, d_type in schema:
+                columns.append(TableColumn(name=column_name, dtype=d_type))
+
+            # save the schemas in schemas directory.
+            schemas.append(Table(name=table, columns=columns))
+
+        # return the schemas
+        return schemas
