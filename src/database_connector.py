@@ -39,15 +39,15 @@ class DatabaseAgent:
             "PostgreSQL": f"postgresql+psycopg2://{self.__username}:{self.__password}@{self.__host_name}:{str(self.__port)}/{self.__db_name}",
         }
 
-        conn_str = conn_mapp.get(self.db_type)
+        self.conn_str = conn_mapp.get(self.db_type)
 
-        if conn_str is None:
+        if self.conn_str is None:
 
             raise NotImplementedError(f"Not implemented for {self.db_type}.")
 
         else:
 
-            return conn_str
+            return self.conn_str
 
     def __check_connection(self):
 

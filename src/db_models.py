@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class TableColumn(BaseModel):
@@ -27,3 +27,13 @@ class Table(BaseModel):
     pks: list[TableColumn] | None
     # FK from this table to another column in another table
     fks: list[ForeignKey] | None
+
+
+class DatabaseConnection(BaseModel):
+
+    username: str = Field(..., example="postgres")
+    password: str = Field(..., example="")
+    host_name: str = Field(..., example="localhost")
+    database_name: str = Field(..., example="companydb")
+    port: int = Field(..., example=5432)
+    database_type: str = Field(..., example="PostgreSQL")
