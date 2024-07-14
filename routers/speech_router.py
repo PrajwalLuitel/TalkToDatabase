@@ -1,7 +1,14 @@
+import gc
 from pathlib import Path
 from typing import List
+
+
+import torch
 from fastapi import APIRouter, UploadFile, File, HTTPException
 
+from src.utils import search_files
+from src.db_models import ConvertAudio
+from src.speech2text import SpeechToText
 from src.session_logger import fetch_connection_details
 
 # get root dir path
@@ -12,7 +19,7 @@ save_pth = str(Path(root_dir).joinpath("uploads"))
 router = APIRouter()
 
 
-@router.post("/upload/audio/")
+@router.post("/audio/upload/")
 async def upload_audio_file(
     audio_file: List[UploadFile] = File(...), session_id: str = None
 ):
@@ -39,3 +46,30 @@ async def upload_audio_file(
         return {"success": True, "message": "Files uploaded successfully"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error uploading files: {e}")
+
+
+@router.post("/audio/convert/")
+async def convert_audio(data: ConvertAudio):
+
+    # get the session id
+    session_id = data.session_id
+
+    # find the audio file in the saved folders
+    file_path = search_files(directory=save_pth, search_string=session_id)
+
+    if not file_path:
+        raise HTTPException(status_code=404, detail="Audio file is not found.")
+
+    # initialize the object
+    speech_converter = SpeechToText(whisper_model_size="small")
+
+    # grab the text
+    text = speech_converter(file_path)
+
+    ############ If using cuda free the GPU memory for other model ###########
+    del speech_converter
+    if torch.cuda.is_available():
+        torch.cuda.empty_cache()
+        gc.collect()
+
+    return {"timestamp": text, "text": "".join([v for k, v in text.items()])}

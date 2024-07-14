@@ -2,10 +2,22 @@ import torch
 from transformers import AutoTokenizer, AutoModelForCausalLM
 
 
-class TextInference:
-    def __init__(self, model_name: str):
+class Singleton(type):
+    _instances = {}
+
+    def __call__(cls, *args, **kwargs):
+        if cls not in cls._instances:
+            cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
+        return cls._instances[cls]
+
+
+class TextInference(metaclass=Singleton):
+    def __init__(self, model_name: str = "NumbersStation/nsql-350M"):
+
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
         self.tokenizer = AutoTokenizer.from_pretrained(model_name)
+
         self.model = AutoModelForCausalLM.from_pretrained(model_name).to(self.device)
 
     def generate_text(self, input_text: str, max_length: int = 500):

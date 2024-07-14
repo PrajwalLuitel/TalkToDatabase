@@ -2,7 +2,6 @@ import re
 import sqlalchemy.exc
 from typing import Literal
 from typing import Iterable
-from langchain import SQLDatabase
 from sqlalchemy import create_engine
 
 from src.db_models import TableColumn, Table

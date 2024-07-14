@@ -1,4 +1,5 @@
 import re
+import os
 import pandas as pd
 from sqlalchemy import create_engine, text
 
@@ -22,3 +23,10 @@ def get_data_from_query(query, db_url, params=None):
         data = pd.read_sql_query(str(query), raw_conn, params=params)
     engine.dispose()
     return data
+
+
+def search_files(directory, search_string):
+    for root, dirs, files in os.walk(directory):
+        for file in files:
+            if search_string in file:
+                return os.path.join(root, file)

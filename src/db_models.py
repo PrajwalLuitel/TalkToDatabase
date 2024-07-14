@@ -37,3 +37,16 @@ class DatabaseConnection(BaseModel):
     database_name: str = Field(..., example="companydb")
     port: int = Field(..., example=5432)
     database_type: str = Field(..., example="PostgreSQL")
+
+
+class GetResult(BaseModel):
+    session_id: str = Field(..., example="19daf825-1316-49ab-86f8-cce56eb7bd1d")
+    question: str = Field(
+        ...,
+        example="Give me name and salary of employees whose salary is greater than 50000.",
+    )
+    max_seq_len: int = Field(..., example=1024)
+
+
+class ConvertAudio(BaseModel):
+    session_id: str = Field(..., example="4a63b7cf-39ba-4df0-b5f6-d62ba4e0bf43")

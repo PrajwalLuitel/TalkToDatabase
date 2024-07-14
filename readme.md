@@ -1,1 +1,0 @@
-This project allows you to provide speech input and your database schema to receive the relevant results evaluated by AI model.
