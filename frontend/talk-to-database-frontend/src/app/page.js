@@ -6,8 +6,8 @@ export default function Home() {
   return (
     <div>
       <HomeBanner />
-      <DatabaseForm/>
-      <Footer/>
+        <DatabaseForm id="formElement" />
+      <Footer />
     </div>
   );
 }

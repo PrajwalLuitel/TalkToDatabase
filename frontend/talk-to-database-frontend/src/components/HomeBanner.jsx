@@ -1,3 +1,5 @@
+"use client";
+
 import Image from "next/image";
 import { Montserrat_Alternates } from "next/font/google";
 import Link from "next/link";
@@ -7,9 +9,10 @@ const montserrat = Montserrat_Alternates({
   weight: ["700"],
 });
 
+
 const HomeBanner = () => {
   return (
-    <div className="w-full text-center">
+    <div className="w-full bg-main-banner-background bg-cover bg-fixed text-center">
       <Image
         src="/Images/main_banner.jpg"
         height={200}
@@ -30,7 +33,7 @@ const HomeBanner = () => {
           </p>
 
           <Link
-            href="/"
+            href="/#formElement"
             className="bg-emerald-200 px-4 py-2 rounded-xl border-4 border-solid border-emerald-200 hover:bg-slate-200 hover:text-emerald-700 transition-all ease-in-out delay-350"
           >
             Get Started

@@ -8,8 +8,13 @@
   --background-end-rgb: 255, 255, 255;
 }
 
+
+*{
+  scroll-behavior: smooth;
+}
+
 body {
-  color: rgb(var(--foreground-rgb));
+  background-color: black;
 }
 
 @layer utilities {
