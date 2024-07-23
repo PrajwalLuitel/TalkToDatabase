@@ -1,10 +1,10 @@
-// components/DatabaseForm.js
+// components/DatabaseForm.jsx
 "use client";
 
 import { useState } from "react";
-import { handleSubmit } from "@/utils";
-
+import connectToDatabase from "@/utils/index.js";
 import { Montserrat_Alternates } from "next/font/google";
+import { useRouter } from "next/navigation";
 
 const montserrat = Montserrat_Alternates({
   subsets: ["latin"],
@@ -20,6 +20,8 @@ const DatabaseForm = () => {
     port: "",
     dbType: "",
   });
+  const [sessionId, setSessionId] = useState(null);
+  const router = useRouter();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -27,6 +29,18 @@ const DatabaseForm = () => {
       ...formData,
       [name]: value,
     });
+  };
+
+  const getSessionId = async (e) => {
+    e.preventDefault();
+    const session = await connectToDatabase(formData);
+    setSessionId(session);
+
+    if (session == null) {
+      alert("Couldn't connect to database. Please try again.");
+    } else {
+      router.push(`/connected?sessionId=${session}`);
+    }
   };
 
   return (
@@ -38,7 +52,7 @@ const DatabaseForm = () => {
       </h1>
       <form
         className="flex flex-col gap-4 max-w-[65%] max-md:max-w-[90%] mt-14 max-md:mt-0 mx-auto p-8 bg-emerald-50 shadow-xl shadow-emerald-200 rounded-xl text-black"
-        onSubmit={handleSubmit}
+        onSubmit={getSessionId}
       >
         <div className="flex flex-col gap-1 w-full ">
           <p className="p-2 max-md:py-0">Enter the Name of the Database:</p>
@@ -108,15 +122,14 @@ const DatabaseForm = () => {
         <div className="flex flex-col gap-1 w-full ">
           <p className="p-2 max-md:py-0">Select the type of your database:</p>
           <select
-            type="select"
             name="dbType"
             value={formData.dbType}
             onChange={handleChange}
             placeholder="Database Type"
             className="p-2 border border-gray-300 rounded"
             required
-            defaultvalue={null}
           >
+            <option value="">Select Database Type</option>
             <option>MySQL</option>
             <option>PostgreSQL</option>
             <option>MariaDB</option>
@@ -130,6 +143,12 @@ const DatabaseForm = () => {
         >
           Connect
         </button>
+
+        {sessionId && (
+          <div>
+            <p>Connected Successfully !!! </p>
+          </div>
+        )}
       </form>
     </div>
   );

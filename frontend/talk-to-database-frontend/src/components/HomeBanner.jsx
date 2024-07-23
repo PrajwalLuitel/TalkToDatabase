@@ -9,7 +9,6 @@ const montserrat = Montserrat_Alternates({
   weight: ["700"],
 });
 
-
 const HomeBanner = () => {
   return (
     <div className="w-full bg-main-banner-background bg-cover bg-fixed text-center">
@@ -18,6 +17,7 @@ const HomeBanner = () => {
         height={200}
         width={300}
         className="absolute w-full h-full -z-10 fit"
+        alt="Home banner background image"
       />
       <div className="w-[60%] min-h-[100vh] max-md:w-[90%] mx-auto py-[16%] max-md:py-10">
         <div className=" backdrop-blur-xl backdrop-brightness-[85%] rounded-2xl py-10">
@@ -34,7 +34,7 @@ const HomeBanner = () => {
 
           <Link
             href="/#formElement"
-            className="bg-emerald-200 px-4 py-2 rounded-xl border-4 border-solid border-emerald-200 hover:bg-slate-200 hover:text-emerald-700 transition-all ease-in-out delay-350"
+            className="bg-emerald-200 px-4 py-2 rounded-xl border-4 border-solid border-emerald-200 hover:bg-slate-200 hover:text-emerald-700 transition-all ease-in-out delay-350 text-slate-800"
           >
             Get Started
           </Link>

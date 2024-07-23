@@ -1,6 +1,6 @@
-const handleSubmit = async (e) => {
-    e.preventDefault();
-    const response = await fetch("0.0.0.0:9999/database/connect", {
+const connectToDatabase = async (formData) => {
+  try {
+    const response = await fetch("http://0.0.0.0:9999/database/connect", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -9,12 +9,11 @@ const handleSubmit = async (e) => {
     });
     const result = await response.json();
     if (response.ok) {
-      onSubmit(result.sessionId);
-    } else {
-      alert("Failed to connect to the database");
+      return result.sessionId;
     }
+  } catch {
+    return null;
+  }
 };
-  
 
-
-export default {handleSubmit}
+export default connectToDatabase;
