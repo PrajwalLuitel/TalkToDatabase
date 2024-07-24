@@ -18,7 +18,16 @@ const Connected = () => {
   return (
     <div>
       {sessionId ? (
-        <p>Connected with sessionId: {sessionId}</p>
+  <div>      <p>Connected with sessionId: {sessionId}</p>
+          <p>This part allows the user to provide voice command</p>
+          
+          <p>Space for the user voice converted to text</p>
+
+          <p>Space for data fetched from the database.</p>
+        </div>
+
+  
+
       ) : (
         <p>Loading...</p>
       )}
