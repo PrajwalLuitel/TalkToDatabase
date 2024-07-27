@@ -51,7 +51,9 @@ The following hyperparameters were used during training:
 
 ### Training results
 
+**Loss Per Step**
 
+![](loss.png)
 
 ### Framework versions
 
@@ -60,3 +62,5 @@ The following hyperparameters were used during training:
 - Pytorch 2.1.2
 - Datasets 2.20.0
 - Tokenizers 0.19.1
+
+
