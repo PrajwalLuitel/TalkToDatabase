@@ -13,7 +13,7 @@ from src.llm_inference import TextInference
 from src.database_connector import DatabaseAgent
 from src.prompt_formatter import PromptFormatterV1
 from src.db_models import DatabaseConnection, GetResult
-from src.utils import SQLExtractor, get_data_from_query
+from src.utils import SQLExtractor, get_data_from_query, extract_and_correct_sql
 from src.session_logger import log_connection_details, fetch_connection_details
 
 ############### Importing Routers ###################
@@ -104,15 +104,25 @@ async def generate_and_execute(data: GetResult):
         torch.cuda.empty_cache()
         gc.collect()
 
+    print(output)
     # extract the sql
-    extractor = SQLExtractor(text=output)
-    sql = extractor.extract_select_commands()[-1]
+    # extractor = SQLExtractor(text=output)
+    # sql = extractor.extract_select_commands()[-1]
+    try:
+        sql = extract_and_correct_sql(text=output)
+        # execute the sql
+        result_df = get_data_from_query(
+            query=sql,
+            db_url=sql_agent.conn_str,  # get the connection string from sql agent.
+        )
+    except:
 
-    # execute the sql
-    result_df = get_data_from_query(
-        query=sql,
-        db_url=sql_agent.conn_str,  # get the connection string from sql agent.
-    )
+        sql = extract_and_correct_sql(text=output, correct=True)
+        # execute the sql
+        result_df = get_data_from_query(
+            query=sql,
+            db_url=sql_agent.conn_str,  # get the connection string from sql agent.
+        )
 
     # convert the dataframe to a json
     result_df = result_df.to_dict(orient="records")
@@ -120,7 +130,7 @@ async def generate_and_execute(data: GetResult):
     # delete all the objects
     del sql_agent
     del formatter
-    del extractor
+    # del extractor
 
     return {"status_code": 200, "sql": sql, "dataframe": result_df}
 

@@ -1,4 +1,5 @@
 import torch
+from peft import PeftModel, PeftConfig
 from transformers import AutoTokenizer, AutoModelForCausalLM
 
 
@@ -18,7 +19,11 @@ class TextInference(metaclass=Singleton):
 
         self.tokenizer = AutoTokenizer.from_pretrained(model_name)
 
-        self.model = AutoModelForCausalLM.from_pretrained(model_name).to(self.device)
+        config = PeftConfig.from_pretrained("Rajan/training_run")
+        base_model = AutoModelForCausalLM.from_pretrained("NumbersStation/nsql-350M")
+        self.model = PeftModel.from_pretrained(base_model, "Rajan/training_run").to(
+            self.device
+        )
 
     def generate_text(self, input_text: str, max_length: int = 500):
         input_ids = self.tokenizer(input_text, return_tensors="pt").input_ids.to(

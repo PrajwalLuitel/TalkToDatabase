@@ -1,3 +1,4 @@
+import gc
 import torch
 from typing import Literal
 from faster_whisper import WhisperModel
@@ -49,5 +50,10 @@ class SpeechToText(metaclass=Singleton):
 
             # key will be tine and audio will be file
             result[key] = str(segment.text)
+
+        if torch.cuda.is_available():
+            del self.model
+            torch.cuda.empty_cache()
+            gc.collect()
 
         return result

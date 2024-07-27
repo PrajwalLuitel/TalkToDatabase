@@ -30,3 +30,21 @@ def search_files(directory, search_string):
         for file in files:
             if search_string in file:
                 return os.path.join(root, file)
+
+
+def extract_and_correct_sql(text, correct=False):
+    lines = text.splitlines()
+
+    start_index = 0
+    for i, line in enumerate(lines):
+        if line.strip().upper().startswith("SELECT"):
+            start_index = i
+            break
+
+    generated_sql = "\n".join(lines[start_index:])
+
+    if correct:
+        if not generated_sql.strip().endswith(";"):
+            generated_sql = generated_sql.strip() + ";"
+
+    return generated_sql
