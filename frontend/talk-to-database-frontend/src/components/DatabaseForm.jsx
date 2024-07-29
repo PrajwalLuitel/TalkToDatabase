@@ -1,8 +1,6 @@
-// components/DatabaseForm.jsx
 "use client";
-
 import { useState } from "react";
-import connectToDatabase from "@/utils/index.js";
+import { connectToDatabase } from "@/utils/index.js";
 import { Montserrat_Alternates } from "next/font/google";
 import { useRouter } from "next/navigation";
 
@@ -13,12 +11,12 @@ const montserrat = Montserrat_Alternates({
 
 const DatabaseForm = () => {
   const [formData, setFormData] = useState({
-    dbName: "",
     username: "",
     password: "",
-    hostname: "",
+    host_name: "",
+    database_name: "",
     port: "",
-    dbType: "",
+    database_type: "",
   });
   const [sessionId, setSessionId] = useState(null);
   const router = useRouter();
@@ -33,13 +31,18 @@ const DatabaseForm = () => {
 
   const getSessionId = async (e) => {
     e.preventDefault();
-    const session = await connectToDatabase(formData);
-    setSessionId(session);
+    try {
+      const session = await connectToDatabase(formData);
+      setSessionId(session);
 
-    if (session == null) {
-      alert("Couldn't connect to database. Please try again.");
-    } else {
-      router.push(`/connected?sessionId=${session}`);
+      if (session == null) {
+        alert("Couldn't connect to database. Please try again.");
+      } else {
+        router.push(`/connected?sessionId=${session}`);
+      }
+    } catch (error) {
+      console.error("Error connecting to database:", error);
+      alert("An error occurred. Please check the console for details.");
     }
   };
 
@@ -58,8 +61,8 @@ const DatabaseForm = () => {
           <p className="p-2 max-md:py-0">Enter the Name of the Database:</p>
           <input
             type="text"
-            name="dbName"
-            value={formData.dbName}
+            name="database_name"
+            value={formData.database_name}
             onChange={handleChange}
             placeholder="Database Name"
             className="p-2 border border-gray-300 rounded text-black w-full"
@@ -97,8 +100,8 @@ const DatabaseForm = () => {
           <p className="p-2 max-md:py-0">Enter your Hostname:</p>
           <input
             type="text"
-            name="hostname"
-            value={formData.hostname}
+            name="host_name"
+            value={formData.host_name}
             onChange={handleChange}
             placeholder="Hostname"
             className="p-2 border border-gray-300 rounded"
@@ -122,19 +125,19 @@ const DatabaseForm = () => {
         <div className="flex flex-col gap-1 w-full ">
           <p className="p-2 max-md:py-0">Select the type of your database:</p>
           <select
-            name="dbType"
-            value={formData.dbType}
+            name="database_type"
+            value={formData.database_type}
             onChange={handleChange}
             placeholder="Database Type"
             className="p-2 border border-gray-300 rounded"
             required
           >
             <option value="">Select Database Type</option>
-            <option>MySQL</option>
-            <option>PostgreSQL</option>
-            <option>MariaDB</option>
-            <option>SQLite</option>
-            <option>OracleSQL</option>
+            <option value="MySQL">MySQL</option>
+            <option value="PostgreSQL">PostgreSQL</option>
+            <option value="MariaDB">MariaDB</option>
+            <option value="SQLite">SQLite</option>
+            <option value="OracleSQL">OracleSQL</option>
           </select>
         </div>
         <button

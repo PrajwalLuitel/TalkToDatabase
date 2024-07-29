@@ -7,6 +7,7 @@ import torch
 import uvicorn
 import pandas as pd
 from fastapi import FastAPI, HTTPException, UploadFile
+from fastapi.middleware.cors import CORSMiddleware
 
 ############### Importing Our classes ###################
 from src.llm_inference import TextInference
@@ -23,19 +24,31 @@ from routers.speech_router import router as speech_router
 app = FastAPI()
 app.include_router(speech_router, tags=["Speech Routers / Upload to Process"])
 
+origins = ["*"]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+
 
 @app.post("/database/connect/")
 async def connect_to_database(data: DatabaseConnection):
 
     # initialize the database connector
     try:
+        print(f"Objects received: {dict(data)}")
         db_connector = DatabaseAgent(
             **dict(data)
         )  # converting pydantic-> dict -> kwargs
 
         # if connection successful, generate unique id for session
         session_id = str(uuid.uuid4())
-
+        print(f"I am here with sessionID: {session_id}")
         # log the connection details
         log_connection_details(session_id, dict(data))
 

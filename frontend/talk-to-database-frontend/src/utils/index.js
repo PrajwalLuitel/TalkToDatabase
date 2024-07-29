@@ -1,24 +1,32 @@
-const connectToDatabase = async (formData) => {
+// utils/index.js
+
+
+export const connectToDatabase = async (formData) => {
   try {
-    const response = await fetch("http://0.0.0.0:9999/database/connect", {
+    console.log("Form data being sent:", JSON.stringify(formData));
+    const response = await fetch("http://0.0.0.0:9999/database/connect/", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(formData),
+      headers:{"Content-Type": "application/json"},
+      body: JSON.stringify(formData)
     });
+    console.log("Response status:", response.status);
     const result = await response.json();
+    console.log("API result:", result);
+
     if (response.ok) {
-      return result.sessionId;
+      return result.session_id;
     }
-  } catch {
+  } catch (error) {
+    console.error("Error connecting to database:", error);
     return null;
   }
 };
 
+
+
 export const uploadFile = async (fileData) => {
   try {
-    const response = await fetch("http://0.0.0.0:9999/files/upload", {
+    const response = await fetch("0.0.0.0:9999/audio/upload", {
       method: "POST",
       body: fileData,
     });
@@ -33,14 +41,12 @@ export const uploadFile = async (fileData) => {
   }
 };
 
-export const fetchText = async (sessionId) => {
+export const fetchText = async (session_id) => {
   try {
-    const response = await fetch(
-      `http://0.0.0.0:9999/fetchtext?sessionId=${sessionId}`,
-      {
-        method: "GET",
-      }
-    );
+    const response = await fetch(`http://0.0.0.0:9999/audio/convert`, {
+      method: "GET",
+      body: JSON.stringify({ session_id }),
+    });
     if (response.ok) {
       const data = await response.json();
       return data.text;
@@ -53,14 +59,15 @@ export const fetchText = async (sessionId) => {
   }
 };
 
-export const processAudio = async (sessionId, text) => {
+export const processAudio = async (session_id, question) => {
   try {
-    const response = await fetch("http://0.0.0.0:9999/audio/process", {
+    const max_seq_len = 10;
+    const response = await fetch("0.0.0.0:9999/database/execute_query", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ sessionId, text }),
+      body: JSON.stringify({ session_id, question, max_seq_len }),
     });
     if (response.ok) {
       return await response.json();
@@ -72,5 +79,7 @@ export const processAudio = async (sessionId, text) => {
     return null;
   }
 };
+
+
 
 export default { connectToDatabase, uploadFile, fetchText, processAudio };
