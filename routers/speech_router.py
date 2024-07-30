@@ -21,31 +21,26 @@ router = APIRouter()
 
 @router.post("/audio/upload/")
 async def upload_audio_file(
-    audio_file: List[UploadFile] = File(...), session_id: str = None
+    audio_file: UploadFile = File(...), session_id: str = None
 ):
     try:
         if not fetch_connection_details(session_id):
             raise HTTPException(status_code=404, detail="Session ID not found")
 
-        for file in audio_file:
-            # if audio file check save location exists or not, if save else create
-            Path(save_pth).mkdir(parents=True, exist_ok=True)
+        Path(save_pth).mkdir(parents=True, exist_ok=True)
 
-            # check for file type : only mp3 and wav, if save else raise exception.
-            if (file.filename.endswith(".mp3")) or (file.filename.endswith(".wav")):
-
-                file_location = f"{save_pth}/{session_id}_{file.filename}"
-                with open(file_location, "wb") as f:
-                    f.write(await file.read())
-
-            else:
-                raise HTTPException(
-                    status_code=400, detail=f"{file.filename} is not a audio file."
-                )
-
-        return {"success": True, "message": "Files uploaded successfully"}
+        if audio_file.filename.endswith(".mp3") or audio_file.filename.endswith(".wav"):
+            file_location = f"{save_pth}/{session_id}_{audio_file.filename}"
+            with open(file_location, "wb") as f:
+                f.write(await audio_file.read())
+            return {"success": True, "message": "File uploaded successfully"}
+        else:
+            raise HTTPException(status_code=400, detail=f"{audio_file.filename} is not an audio file.")
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error uploading files: {e}")
+        import traceback
+        traceback_str = ''.join(traceback.format_tb(e.__traceback__))
+        print(f"Exception occurred: {e}\nTraceback: {traceback_str}")
+        raise HTTPException(status_code=500, detail=f"Error uploading file: {e}")
 
 
 @router.post("/audio/convert/")

@@ -1,6 +1,7 @@
 ############### Importing Builtin ###################
 import gc
 import uuid
+import os
 
 ############### Importing libraries ###################
 import torch
@@ -20,6 +21,10 @@ from src.session_logger import log_connection_details, fetch_connection_details
 ############### Importing Routers ###################
 from routers.speech_router import router as speech_router
 
+
+os.environ['KMP_DUPLICATE_LIB_OK'] = 'TRUE'
+
+
 # defining the fastapi and routers.
 app = FastAPI()
 app.include_router(speech_router, tags=["Speech Routers / Upload to Process"])
@@ -33,8 +38,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-
 
 @app.post("/database/connect/")
 async def connect_to_database(data: DatabaseConnection):
