@@ -14,6 +14,7 @@ const Connected = () => {
   const searchParams = useSearchParams();
   const [mediaRecorder, setMediaRecorder] = useState(null);
   const [audioChunks, setAudioChunks] = useState([]);
+  const [uploaded, setUploaded] = useState(false);
 
   useEffect(() => {
     try {
@@ -31,45 +32,48 @@ const Connected = () => {
     }
   };
 
-  const startRecording = () => {
-    navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
-      const newMediaRecorder = new MediaRecorder(stream);
-      const newAudioChunks = [];
-
-      newMediaRecorder.ondataavailable = (event) => {
-        newAudioChunks.push(event.data);
-      };
-
-      newMediaRecorder.onstop = () => {
-        setAudioBlob(new Blob(newAudioChunks, { type: "audio/wav" }));
-        stream.getTracks().forEach((track) => track.stop());
-      };
-
-      setMediaRecorder(newMediaRecorder);
-      setAudioChunks(newAudioChunks);
-      newMediaRecorder.start();
-      setRecording(true);
-    });
-  };
-
   const stopRecording = () => {
     if (mediaRecorder) {
       mediaRecorder.stop();
       setRecording(false);
     }
   };
+  
+  const startRecording = () => {
+    navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
+      const newMediaRecorder = new MediaRecorder(stream);
+      const newAudioChunks = [];
+  
+      newMediaRecorder.ondataavailable = (event) => {
+        newAudioChunks.push(event.data);
+      };
+  
+      newMediaRecorder.onstop = () => {
+        const blob = new Blob(newAudioChunks, { type: "audio/wav" });
+        setAudioBlob(blob);
+        console.log("Recorded audio blob: ", blob);
+        stream.getTracks().forEach((track) => track.stop());
+      };
+  
+      setMediaRecorder(newMediaRecorder);
+      setAudioChunks(newAudioChunks);
+      newMediaRecorder.start();
+      setRecording(true);
+    });
+  };
+  
 
   const handleAudioUpload = async (e) => {
     e.preventDefault();
     if (audioBlob && sessionId) {
-      const fileData = new FormData();
-      fileData.append("file", audioBlob);
-      fileData.append("sessionId", sessionId);
-
-      const uploadResponse = await uploadFile(fileData);
+      console.log("Uploading audio blob: ", audioBlob);
+      const uploadResponse = await uploadFile(audioBlob, sessionId);
       if (uploadResponse) {
+        setUploaded(true);
+        console.log("Uploaded audio blob, Now waiting for the text . . .")
         const text = await fetchText(sessionId);
         setConvertedText(text);
+        console.log("Received the uploaded text: ", text)
         const data = await processAudio(sessionId, text);
         setProcessedData(data);
       } else {
@@ -77,6 +81,8 @@ const Connected = () => {
       }
     }
   };
+  
+  
 
   return (
     <div className="w-full">
@@ -124,6 +130,13 @@ const Connected = () => {
               </button>
 }
           </form>
+
+          {uploaded && (
+            <div>
+            <p>File uploaded successfully !!</p>
+            </div>
+          )}
+
 
           {convertedText && (
             <div>

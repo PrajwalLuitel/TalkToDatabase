@@ -24,12 +24,16 @@ export const connectToDatabase = async (formData) => {
 
 
 
-export const uploadFile = async (fileData) => {
+export const uploadFile = async (file, session_id) => {
   try {
-    const response = await fetch("0.0.0.0:9999/audio/upload", {
+    const formData = new FormData();
+    formData.append("audio_file", file, "recording.wav");
+
+    const response = await fetch(`http://0.0.0.0:9999/audio/upload/?session_id=${session_id}`, {
       method: "POST",
-      body: fileData,
+      body: formData,
     });
+
     if (response.ok) {
       return await response.json();
     } else {
@@ -41,10 +45,15 @@ export const uploadFile = async (fileData) => {
   }
 };
 
+
 export const fetchText = async (session_id) => {
   try {
-    const response = await fetch(`http://0.0.0.0:9999/audio/convert`, {
-      method: "GET",
+    console.log("Sending the session id to get the text: ", JSON.stringify({session_id}));
+    const response = await fetch("http://0.0.0.0:9999/audio/convert/", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
       body: JSON.stringify({ session_id }),
     });
     if (response.ok) {
@@ -59,10 +68,12 @@ export const fetchText = async (session_id) => {
   }
 };
 
+
+
 export const processAudio = async (session_id, question) => {
   try {
-    const max_seq_len = 10;
-    const response = await fetch("0.0.0.0:9999/database/execute_query", {
+    const max_seq_len = 1024;
+    const response = await fetch("http://0.0.0.0:9999/database/execute_query/", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
