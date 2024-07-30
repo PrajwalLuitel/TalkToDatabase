@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import { uploadFile, fetchText, processAudio } from "@/utils";
 import Image from "next/image";
+import DataTable from "@/components/DataTable";
 
 const Connected = () => {
   const [sessionId, setSessionId] = useState(null);
@@ -75,12 +76,18 @@ const Connected = () => {
         setConvertedText(text);
         console.log("Received the uploaded text: ", text)
         const data = await processAudio(sessionId, text);
-        setProcessedData(data);
+        setProcessedData(data.dataframe);
       } else {
         alert("Error uploading audio file.");
       }
     }
   };
+
+  const testFinal = async () => {
+    const data = await processAudio("dd49482d-9ddd-4fdd-98ff-8fcfc159b245", "Give me the name of 3 employees.");
+    setProcessedData(data.dataframe);
+
+  }
   
   
 
@@ -131,6 +138,8 @@ const Connected = () => {
 }
           </form>
 
+          <button onClick={testFinal} >Test final</button>
+
           {uploaded && (
             <div>
             <p>File uploaded successfully !!</p>
@@ -147,7 +156,7 @@ const Connected = () => {
           {processedData && (
             <div>
               <p>Processed Data:</p>
-              <pre>{JSON.stringify(processedData, null, 2)}</pre>
+              <DataTable data={JSON.stringify(processedData) } />
             </div>
           )}
         </div>

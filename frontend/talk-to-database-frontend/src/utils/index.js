@@ -72,6 +72,7 @@ export const fetchText = async (session_id) => {
 
 export const processAudio = async (session_id, question) => {
   try {
+    console.log("Starting to process the text for final result. . . . . .")
     const max_seq_len = 1024;
     const response = await fetch("http://0.0.0.0:9999/database/execute_query/", {
       method: "POST",
@@ -81,7 +82,10 @@ export const processAudio = async (session_id, question) => {
       body: JSON.stringify({ session_id, question, max_seq_len }),
     });
     if (response.ok) {
-      return await response.json();
+      const table = await response.json();
+      console.log("I got the following data as final result: ", table);
+      return table;
+
     } else {
       return null;
     }

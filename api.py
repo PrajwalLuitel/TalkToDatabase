@@ -44,14 +44,12 @@ async def connect_to_database(data: DatabaseConnection):
 
     # initialize the database connector
     try:
-        print(f"Objects received: {dict(data)}")
         db_connector = DatabaseAgent(
             **dict(data)
         )  # converting pydantic-> dict -> kwargs
 
         # if connection successful, generate unique id for session
         session_id = str(uuid.uuid4())
-        print(f"I am here with sessionID: {session_id}")
         # log the connection details
         log_connection_details(session_id, dict(data))
 
