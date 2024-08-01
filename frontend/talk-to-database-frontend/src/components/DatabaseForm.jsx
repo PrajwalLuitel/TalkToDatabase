@@ -92,7 +92,6 @@ const DatabaseForm = () => {
             onChange={handleChange}
             placeholder="Password"
             className="p-2 border border-gray-300 rounded"
-            required
           />
         </div>
 
