@@ -22,7 +22,7 @@ from src.session_logger import log_connection_details, fetch_connection_details
 from routers.speech_router import router as speech_router
 
 
-os.environ['KMP_DUPLICATE_LIB_OK'] = 'TRUE'
+os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 
 
 # defining the fastapi and routers.
@@ -38,6 +38,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 
 @app.post("/database/connect/")
 async def connect_to_database(data: DatabaseConnection):
