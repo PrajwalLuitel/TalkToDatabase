@@ -20,9 +20,7 @@ router = APIRouter()
 
 
 @router.post("/audio/upload/")
-async def upload_audio_file(
-    audio_file: UploadFile = File(...), session_id: str = None
-):
+async def upload_audio_file(audio_file: UploadFile = File(...), session_id: str = None):
     try:
         if not fetch_connection_details(session_id):
             raise HTTPException(status_code=404, detail="Session ID not found")
@@ -35,10 +33,13 @@ async def upload_audio_file(
                 f.write(await audio_file.read())
             return {"success": True, "message": "File uploaded successfully"}
         else:
-            raise HTTPException(status_code=400, detail=f"{audio_file.filename} is not an audio file.")
+            raise HTTPException(
+                status_code=400, detail=f"{audio_file.filename} is not an audio file."
+            )
     except Exception as e:
         import traceback
-        traceback_str = ''.join(traceback.format_tb(e.__traceback__))
+
+        traceback_str = "".join(traceback.format_tb(e.__traceback__))
         print(f"Exception occurred: {e}\nTraceback: {traceback_str}")
         raise HTTPException(status_code=500, detail=f"Error uploading file: {e}")
 
