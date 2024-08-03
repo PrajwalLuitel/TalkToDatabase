@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { uploadFile, fetchText, processAudio } from "@/utils";
 import Image from "next/image";
 import DataTable from "@/components/DataTable";
+import LoadingAnimation from "@/components/LoadingAnimation";
 
 const Connected = () => {
   const [sessionId, setSessionId] = useState(null);
@@ -16,6 +17,8 @@ const Connected = () => {
   const [mediaRecorder, setMediaRecorder] = useState(null);
   const [audioChunks, setAudioChunks] = useState([]);
   const [uploaded, setUploaded] = useState(false);
+  const [textIsLoading, setTextIsLoading] = useState(false);
+  const [tableIsLoading, setTableIsLoading] = useState(false);
 
   useEffect(() => {
     try {
@@ -39,56 +42,61 @@ const Connected = () => {
       setRecording(false);
     }
   };
-  
+
   const startRecording = () => {
     navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
       const newMediaRecorder = new MediaRecorder(stream);
       const newAudioChunks = [];
-  
+
       newMediaRecorder.ondataavailable = (event) => {
         newAudioChunks.push(event.data);
       };
-  
+
       newMediaRecorder.onstop = () => {
         const blob = new Blob(newAudioChunks, { type: "audio/wav" });
         setAudioBlob(blob);
         console.log("Recorded audio blob: ", blob);
         stream.getTracks().forEach((track) => track.stop());
       };
-  
+
       setMediaRecorder(newMediaRecorder);
       setAudioChunks(newAudioChunks);
       newMediaRecorder.start();
       setRecording(true);
     });
   };
-  
 
   const handleAudioUpload = async (e) => {
     e.preventDefault();
+    setTextIsLoading(true);
     if (audioBlob && sessionId) {
       console.log("Uploading audio blob: ", audioBlob);
       const uploadResponse = await uploadFile(audioBlob, sessionId);
       if (uploadResponse) {
         setUploaded(true);
-        console.log("Uploaded audio blob, Now waiting for the text . . .")
+        console.log("Uploaded audio blob, Now waiting for the text . . .");
         const text = await fetchText(sessionId);
+        setTextIsLoading(false);
         setConvertedText(text);
-        console.log("Received the uploaded text: ", text)
+        console.log("Received the uploaded text: ", text);
       } else {
         alert("Error uploading audio file.");
+        setTextIsLoading(false);
       }
     }
   };
 
   const processText = async () => {
-    const data = await processAudio(sessionId, "Give me the name of 3 employees.");
+    setTableIsLoading(true);
+    const data = await processAudio(
+      sessionId,
+      "Give me the name of three employees whose name starts with C."
+    );
     console.log("I received this from the final api call: ", data);
     console.log("This is data.dataframe: ", data.dataframe);
+    setTableIsLoading(false);
     setProcessedData(data.dataframe);
-  }
-  
-  
+  };
 
   return (
     <div className="w-full">
@@ -112,7 +120,7 @@ const Connected = () => {
                   Stop Recording
                 </div>
               ) : (
-                <div className="bg-emerald-500 m-auto p-2 rounded-xl mb-4 text-center transition-all duration-1000 ease-in text-slate-900">
+                <div className="bg-emerald-500 m-auto p-2 rounded-xl mb-4 text-center transition-all duration-1000 ease-in text-slate-900 shadow-emerald-500 shadow-lg ">
                   <Image
                     src="/Images/recording_start.png"
                     width={50}
@@ -127,24 +135,48 @@ const Connected = () => {
           </div>
 
           <form onSubmit={handleAudioUpload}>
-            {audioBlob ?
-              <button type="submit" className="p-4 bg-emerald-500/70 font-bold rounded-xl transition-all duration-1000 ease-in mt-6">Upload Audio</button>
-              
-              :
-              <button type="submit" disabled={true} className="p-4 bg-slate-300 text-slate-500 rounded-xl transition-all duration-1000 ease-in mt-9" >
+            {audioBlob ? (
+              <button
+                type="submit"
+                className="p-4 bg-emerald-500/70 font-bold rounded-xl transition-all duration-1000 ease-in mt-6 "
+              >
                 Upload Audio
               </button>
-}
+            ) : (
+              <button
+                type="submit"
+                disabled={true}
+                className="p-4 bg-slate-300 text-slate-500 rounded-xl transition-all duration-1000 ease-in mt-9"
+              >
+                Upload Audio
+              </button>
+            )}
           </form>
+          {textIsLoading && (
+            <LoadingAnimation
+              message="Analyzing the text . . "
+              className="transition-all ease-in duration-400"
+            />
+          )}
 
-          <button onClick={processText} className="bg-slate-300 p-4 rounded-lg mt-10 text-slate-800" >Process the Test</button>
+          <button
+            onClick={processText}
+            className="bg-slate-300 p-4 rounded-lg mt-10 text-slate-800"
+          >
+            Process the Test
+          </button>
+          {tableIsLoading && (
+            <LoadingAnimation
+              message="Fetching the table. . . "
+              className="transition-all duration-1000 ease-in"
+            />
+          )}
 
           {uploaded && (
             <div>
-            <p>File uploaded successfully !!</p>
+              <p>File uploaded successfully !!</p>
             </div>
           )}
-
 
           {convertedText && (
             <div>
