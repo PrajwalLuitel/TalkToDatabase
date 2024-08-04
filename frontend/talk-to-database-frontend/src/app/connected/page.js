@@ -76,6 +76,7 @@ const Connected = () => {
   const handleAudioUpload = async (e) => {
     e.preventDefault();
     setTextIsLoading(true);
+    setConvertedText("");
     if (audioBlob && sessionId) {
       console.log("Uploading audio blob: ", audioBlob);
       const uploadResponse = await uploadFile(audioBlob, sessionId);
@@ -95,12 +96,11 @@ const Connected = () => {
 
   const processText = async () => {
     setTableIsLoading(true);
+    setProcessedData(null);
     const data = await processAudio(
       sessionId,
-      "Give me the name of three employees whose name starts with C."
+      convertedText,
     );
-    console.log("I received this from the final api call: ", data);
-    console.log("This is data.dataframe: ", data.dataframe);
     setTableIsLoading(false);
     setProcessedData(data.dataframe);
   };
@@ -108,7 +108,7 @@ const Connected = () => {
   return (
     <div className="w-full h-[100vh] bg-main-banner-background bg-cover">
       {sessionId ? (
-        <div className={`pt-[4rem] max-w-[75%] max-md:max-w-full m-auto text-center bg-gray-950/30 ${montserrat.className} rounded-xl pb-[15rem] backdrop-blur-sm`}>
+        <div className={`pt-[4rem] max-w-[75%] max-md:max-w-full m-auto text-center bg-gray-950/30 ${montserrat.className} rounded-xl pb-[3rem] backdrop-blur-sm`}>
           <h1 className="text-[2rem] pt-10 pb-8 mb-10 text-teal-100">
             Database Connection Successful !
           </h1>
@@ -154,26 +154,29 @@ const Connected = () => {
           
 
 
-            {uploaded && (
-              <div className="w-[75%] text-center m-auto pt-10">
-                <p className="text-emerald-100 text-[1rem] pb-5">Audio received by the server . . . </p>
-              </div>
-          )}
-
-
           {textIsLoading && (
             <LoadingAnimation
               message="Analyzing the text . . "
               className="transition-all ease-in duration-400"
-            />
+              />
           )}
+          
+            {convertedText && (
+              <div className="w-[75%] text-center m-auto pt-10">
+                <h2 className="text-emerald-100 text-[1.5rem] pb-5">Converted Audio: </h2>
+                <p className=" max-w-fit m-auto text-[1rem] bg-emerald-100 text-slate-800 p-5 rounded-lg">{convertedText}</p>
+              </div>
+            )}
 
-          {convertedText &&  (<button
+          {convertedText &&  (            
+            <button
             onClick={processText}
-            className="bg-slate-300 p-4 rounded-lg mt-10 text-emerald-900"
-          >
-            Process the Test
-          </button>)}
+          className="p-4 bg-emerald-500/70 font-bold rounded-xl transition-all duration-1000 ease-in mt-9 shadow-black shadow-lg "
+        >
+          Process The Text
+        </button>
+          
+          )}
 
           {tableIsLoading && (
             <LoadingAnimation
@@ -183,16 +186,9 @@ const Connected = () => {
           )}
 
 
-          {convertedText && (
-            <div className="w-[75%] text-center m-auto pt-10">
-              <h2 className="text-emerald-100 text-[2rem] pb-5">Voice Command to Text: </h2>
-              <p className="text-emerald-100 text-[1rem] pb-5">{convertedText}</p>
-            </div>
-          )}
 
           {processedData && (
-            <div>
-              <p>Processed Data:</p>
+            <div className="w-[75%] m-auto text-center pt-10 ">
               <DataTable data={processedData} />
             </div>
           )}

@@ -87,11 +87,11 @@ export const processAudio = async (session_id, question) => {
       return table;
 
     } else {
-      return null;
+    return {"dataframe": "No data available"}
     }
   } catch (error) {
     console.error("Error processing audio:", error);
-    return null;
+    return {"dataframe":"No data available."};
   }
 };
 

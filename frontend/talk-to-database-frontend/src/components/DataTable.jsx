@@ -13,11 +13,11 @@ const DataTable = ({ data }) => {
   const headers = Object.keys(data[0]);
 
   return (
-    <table>
+    <table className="w-full ">
       <thead>
         <tr>
           {headers.map((header) => (
-            <th key={header}>{header}</th>
+            <th className="bg-emerald-800 px-8 text-lg rounded-md" key={header}>{header}</th>
           ))}
         </tr>
       </thead>
@@ -25,7 +25,7 @@ const DataTable = ({ data }) => {
         {data.map((row, rowIndex) => (
           <tr key={rowIndex}>
             {headers.map((header) => (
-              <td key={`${rowIndex}-${header}`}>{row[header]}</td>
+              <td className="bg-emerald-100 text-slate-800 rounded-md" key={`${rowIndex}-${header}`}>{row[header]}</td>
             ))}
           </tr>
         ))}
