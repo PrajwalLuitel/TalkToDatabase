@@ -6,6 +6,13 @@ import { uploadFile, fetchText, processAudio } from "@/utils";
 import Image from "next/image";
 import DataTable from "@/components/DataTable";
 import LoadingAnimation from "@/components/LoadingAnimation";
+import { Montserrat_Alternates } from "next/font/google";
+
+const montserrat = Montserrat_Alternates({
+  subsets: ["latin"],
+  weight: ["700"],
+});
+
 
 const Connected = () => {
   const [sessionId, setSessionId] = useState(null);
@@ -99,17 +106,16 @@ const Connected = () => {
   };
 
   return (
-    <div className="w-full">
+    <div className="w-full h-[100vh] bg-main-banner-background bg-cover">
       {sessionId ? (
-        <div className="max-w-[75%] max-md:max-w-full m-auto text-center bg-emerald-950 rounded-xl pb-10">
-          <h1 className="text-[2.5rem] pt-10 pb-8">
-            Connection Established with the Database Server
+        <div className={`pt-[4rem] max-w-[75%] max-md:max-w-full m-auto text-center bg-gray-950/30 ${montserrat.className} rounded-xl pb-[15rem] backdrop-blur-sm`}>
+          <h1 className="text-[2rem] pt-10 pb-8 mb-10 text-teal-100">
+            Database Connection Successful !
           </h1>
-          <h2>Talk to the Data : </h2>
           <div className="w-full text-center">
             <button onClick={handleRecording}>
               {recording ? (
-                <div className="bg-rose-400 m-auto p-2 rounded-xl mb-4 text-center transition-all duration-1000 ease-in text-slate-900">
+                <div className="bg-gradient-to-bl from-rose-400 to-pink-600 shadow-red-700 shadow-lg m-auto p-2 rounded-xl mb-4 text-center transition-all duration-1000 ease-in text-slate-900">
                   <Image
                     src="/Images/recording_stop.png"
                     width={50}
@@ -120,7 +126,7 @@ const Connected = () => {
                   Stop Recording
                 </div>
               ) : (
-                <div className="bg-emerald-500 m-auto p-2 rounded-xl mb-4 text-center transition-all duration-1000 ease-in text-slate-900 shadow-emerald-500 shadow-lg ">
+                <div className="bg-gradient-to-br from-teal-200 to-emerald-500 m-auto p-2 rounded-xl mb-4 text-center transition-all duration-1000 ease-in text-slate-900 shadow-emerald-700 shadow-lg ">
                   <Image
                     src="/Images/recording_start.png"
                     width={50}
@@ -135,23 +141,26 @@ const Connected = () => {
           </div>
 
           <form onSubmit={handleAudioUpload}>
-            {audioBlob ? (
+            
+            {audioBlob && (
               <button
                 type="submit"
-                className="p-4 bg-emerald-500/70 font-bold rounded-xl transition-all duration-1000 ease-in mt-6 "
+                className="p-4 bg-emerald-500/70 font-bold rounded-xl transition-all duration-1000 ease-in mt-9 shadow-black shadow-lg "
               >
-                Upload Audio
+                Analyze Audio
               </button>
-            ) : (
-              <button
-                type="submit"
-                disabled={true}
-                className="p-4 bg-slate-300 text-slate-500 rounded-xl transition-all duration-1000 ease-in mt-9"
-              >
-                Upload Audio
-              </button>
-            )}
+            ) }
           </form>
+          
+
+
+            {uploaded && (
+              <div className="w-[75%] text-center m-auto pt-10">
+                <p className="text-emerald-100 text-[1rem] pb-5">Audio received by the server . . . </p>
+              </div>
+          )}
+
+
           {textIsLoading && (
             <LoadingAnimation
               message="Analyzing the text . . "
@@ -159,12 +168,13 @@ const Connected = () => {
             />
           )}
 
-          <button
+          {convertedText &&  (<button
             onClick={processText}
-            className="bg-slate-300 p-4 rounded-lg mt-10 text-slate-800"
+            className="bg-slate-300 p-4 rounded-lg mt-10 text-emerald-900"
           >
             Process the Test
-          </button>
+          </button>)}
+
           {tableIsLoading && (
             <LoadingAnimation
               message="Fetching the table. . . "
@@ -172,15 +182,11 @@ const Connected = () => {
             />
           )}
 
-          {uploaded && (
-            <div>
-              <p>File uploaded successfully !!</p>
-            </div>
-          )}
 
           {convertedText && (
-            <div>
-              <p>Voice Command Text: {convertedText}</p>
+            <div className="w-[75%] text-center m-auto pt-10">
+              <h2 className="text-emerald-100 text-[2rem] pb-5">Voice Command to Text: </h2>
+              <p className="text-emerald-100 text-[1rem] pb-5">{convertedText}</p>
             </div>
           )}
 
