@@ -108,7 +108,7 @@ const Connected = () => {
   return (
     <div className="w-full min-h-[100vh] max-h-[100%] bg-main-banner-background bg-cover">
       {sessionId ? (
-        <div className={`pt-[4rem] max-w-[75%] max-md:max-w-full m-auto text-center bg-gray-950/30 ${montserrat.className} rounded-xl pb-[3rem] backdrop-blur-sm`}>
+        <div className={`pt-[4rem] max-w-[75%] max-md:max-w-full m-auto text-center bg-gray-950/30 ${montserrat.className} rounded-xl pb-[3rem] backdrop-blur-sm `}>
           <h1 className="text-[2rem] pt-10 pb-8 mb-10 text-teal-100">
             Database Connection Successful !
           </h1>
