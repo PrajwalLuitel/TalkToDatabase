@@ -1,4 +1,3 @@
-import Image from "next/image";
 import { Montserrat_Alternates } from "next/font/google";
 import Link from "next/link";
 
@@ -25,11 +24,11 @@ const HomeBanner = () => {
 
           <Link
             href="/#formElement"
-            className="bg-emerald-200 px-4 py-2 rounded-xl border-4 border-solid border-emerald-200 hover:bg-slate-200 hover:text-emerald-700 transition-all ease-in-out delay-350 text-slate-800"
+            className="rounded-xl text-2xl  text-emerald-300"
           >
-            Get Started
+          ↓
           </Link>
-        </div>
+          </div>
       </div>
     </div>
   );
