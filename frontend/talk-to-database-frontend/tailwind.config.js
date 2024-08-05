@@ -7,16 +7,14 @@ module.exports = {
   ],
   theme: {
     extend: {
-      fontFamily: {
-        
-      },
+      fontFamily: {},
       backgroundImage: {
         "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
         "gradient-conic":
           "conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))",
-        'main-banner-background': "url('/Images/banner_image.png')",
-        'form-background': "url('/Images/form_background.jpg')",
-        'loading-background':"url('/Images/loading_animation.gif')"
+        "main-banner-background": "url('/Images/banner_image.png')",
+        "form-background": "url('/Images/form_background.jpg')",
+        "loading-background": "url('/Images/loading_animation.gif')",
       },
     },
   },
